@@ -1,0 +1,8 @@
+{
+  "name": "checkpoint3",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0",
+    "build": "echo \"Build successful\""
+  }
+}
