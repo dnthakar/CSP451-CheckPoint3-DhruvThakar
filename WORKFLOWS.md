@@ -1,29 +1,27 @@
-# Workflows
+# Workflow Documentation
 
 ## CI Pipeline
-Purpose: Lint, test (coverage), build and upload artifacts.
-Triggers: push to `main` or `develop`, PR to `main`.
-Jobs: lint -> test -> build.
-Secrets: `CODECOV_TOKEN` (optional), `GITHUB_TOKEN` (automatic).
-Troubleshooting: check Actions logs; ensure `npm test` generates `coverage/coverage-summary.json`.
+**Purpose:** Lint, test (with coverage), build  
+**Trigger:** push to `main` or `develop`, PR to `main`  
+**Jobs:** lint → test → build  
+**Secrets:** None required for basic CI  
+**Notes:** Uses composite action for Node setup + npm install
 
 ## Dependency Audit
-Purpose: Daily `npm audit`. Create Issue if vulnerabilities found.
-Triggers: daily schedule (02:00 UTC) and manual.
-Secrets: `GITHUB_TOKEN` (automatic).
-Troubleshooting: open `audit.json` in run logs.
+**Purpose:** Daily `npm audit` and create GitHub issue if vulnerabilities found  
+**Trigger:** scheduled daily + manual workflow_dispatch  
+**Jobs:** audit  
+**Secrets:** None (uses GITHUB_TOKEN)  
+**Notes:** Adds issue only if vulnerabilities exist
 
 ## Deploy to GitHub Pages
-Purpose: Build and publish `./dist` to `gh-pages`.
-Triggers: push to `main`.
-Secrets: `GITHUB_TOKEN` (automatic).
-Troubleshooting: ensure `npm run build` outputs `./dist`. Check Pages settings and action logs.
+**Purpose:** Build project and deploy to gh-pages branch  
+**Trigger:** push to `main`  
+**Jobs:** build-and-deploy  
+**Secrets:** GITHUB_TOKEN (automatic)  
+**Notes:** Output goes to ./dist folder
 
 ## Composite Action
-Purpose: Reuse Node setup and install steps.
-Location: `.github/actions/setup-node-env`
-Usage: `- uses: ./.github/actions/setup-node-env`
-
-## Notes
-- Enforce coverage: CI fails if `lines.pct` < 80 from `coverage/coverage-summary.json`.
-- Add `CODECOV_TOKEN` in repo Settings → Secrets if your repo is private and you use Codecov.
+**Purpose:** Reusable Node.js setup + install  
+**Location:** `.github/actions/setup-node-env`  
+**Usage:** `- uses: ./.github/actions/setup-node-env`
