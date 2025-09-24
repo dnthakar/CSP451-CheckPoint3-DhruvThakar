@@ -1,9 +1,23 @@
-  name: Setup Node Environment
-description: Install Node and dependencies
+name: "Setup Node.js Environment"
+description: "Install Node, cache dependencies, run lint + tests"
+
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: 20
-    - run: npm install
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+      shell: bash
+
+    - name: Run Lint
+      run: npm run lint --if-present
+      shell: bash
+
+    - name: Run Tests
+      run: npm test --if-present
+      shell: bash
