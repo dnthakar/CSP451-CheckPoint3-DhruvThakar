@@ -1,5 +1,4 @@
 name: Dependency Audit
-
 on:
   schedule:
     - cron: "0 2 * * *" # daily at 02:00 UTC
@@ -10,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm install
+      - uses: ./.github/actions/setup-node-env
       - run: npm audit --json > audit.json || true
       - name: Create issue if vulnerabilities found
         uses: actions/github-script@v6
@@ -20,18 +17,17 @@ jobs:
           script: |
             const fs = require('fs');
             const data = JSON.parse(fs.readFileSync('audit.json','utf8')||'{}');
-            const vul = data.metadata && data.metadata.vulnerabilities ? data.metadata.vulnerabilities : {};
+            const vul = data.metadata?.vulnerabilities || {};
             const total = Object.values(vul).reduce((a,b)=>a+b,0);
-            if(total > 0){
-              const body = `Automated audit found vulnerabilities:\n\n\`\`\`json\n${JSON.stringify(vul,null,2)}\n\`\`\`\nFull report attached as audit.json in run.`;
-              // avoid duplicate issues: search open issues with same title
-              const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state: 'open' });
-              const exists = issues.data.find(i => i.title.includes('Dependency vulnerabilities detected'));
+            if(total>0){
+              const issues = await github.rest.issues.listForRepo({ owner: context.repo.owner, repo: context.repo.repo, state:'open' });
+              const exists = issues.data.find(i=>i.title.includes('Dependency vulnerabilities detected'));
               if(!exists){
-                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title: `Dependency vulnerabilities detected (${total})`, body });
-              } else {
-                console.log('Open vulnerability issue already exists.');
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `Dependency vulnerabilities detected (${total})`,
+                  body: `Vulnerabilities found:\n\`\`\`json\n${JSON.stringify(vul,null,2)}\n\`\`\``
+                });
               }
-            } else {
-              console.log('No vulnerabilities found.');
             }
