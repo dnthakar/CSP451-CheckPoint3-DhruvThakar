@@ -1,3 +1,7 @@
+permissions:
+  issues: write
+  contents: read
+
 name: Dependency Audit
 on:
   schedule:
